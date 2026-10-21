@@ -1,0 +1,11 @@
+{
+  "ticker": "CSV",
+  "source_url": "https://finance.yahoo.com/quote/CSV/history/",
+  "requested_start_inclusive": "2017-01-02",
+  "requested_end_inclusive": "2026-09-30",
+  "interval": "1d",
+  "auto_adjust": false,
+  "download_timestamp_utc": "2026-10-21T00:11:10+00:00",
+  "yfinance_version": "1.7.0",
+  "access_conditions": "yfinance is not affiliated with or endorsed by Yahoo; intended for research and educational purposes; Yahoo! Finance API intended for personal use only; data use is subject to Yahoo's terms of use."
+}
