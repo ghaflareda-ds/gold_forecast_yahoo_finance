@@ -5,8 +5,37 @@ Legend: ✅ verified from actual files or outputs · 🔶 proposed or not yet ve
 ---
 
 ## Current position
-- **Current stage:** 1. Inspect the CSV structure and correct the data-loading process.
-- **Next planned step:** add a cell that prints the first raw lines of `Gold_Dec_26.csv`, so the notebook documents *why* `skiprows=[1, 2]` is needed. Then move to Stage 2 (verify columns, types and dates).
+- **Current stage:** 3. Inspect missing values, duplicate rows and invalid observations.
+- **Stage 1 complete ✅:** loading with `skiprows=[1, 2]` confirmed by the notebook output (6,561 rows, numeric types). The student decided not to add a raw-file printout cell or to change Markdown cell [3].
+- **Stage 2 complete ✅** (student's notebook output, cells [7] and [9]):
+  - Dates run from 2000-08-30 to 2026-10-21, and `is_monotonic_increasing` = True, so they are already in time order.
+  - `describe()`: count 6,561 in every column (no missing values). All prices are positive: minimum ≈ 255, maximum Close 5,318.40, maximum High 5,586.20, maximum Open 5,415.70. The price std ≈ 920 reflects the long-term trend.
+  - Volume: minimum 0, 25% = 29, median 199, mean 51,318, 75% 87,026, maximum 570,055. Very uneven, probably recorded differently in some periods; still to investigate.
+- **Stage 3 complete ✅** (student's notebook output):
+  - Missing values: 0. Duplicate dates (`df.index.duplicated()`): 0. An earlier `df.duplicated()` call found 41 *identical rows* on different dates in 2000–2007; these are real days and were kept (mistake corrected).
+  - Full 2000–2026 data: High < Low 1, Open outside range 56, Close outside range 430, zero volume 418; all prices > 0.
+  - Ten-year filter with fixed dates: `start_date='2016-10-21'`, `end_date='2026-10-20'` (the 21 Oct 2026 download day is excluded as incomplete) → **2,513 rows**. `Timestamp.now()` was replaced so the result is reproducible.
+  - Ten-year data: High < Low 0, Open/Close outside range 0, so **all price errors were in old years**. Zero volume: 36 days.
+  - **Volume < 1,000 on 810 of 2,513 days**, by year: 2016 41, 2017 223, 2018 228, 2019 224, 2020 86, 2021–2024 ≈ 0, 2025 5, 2026 2. Volume was recorded at a much lower level before about 2020, so the series is **not consistent** over the ten years.
+- **Decision (based on this evidence):** Volume is kept as an original column but **not used as a model input** (clustering features), because its recording changes during the period. To be stated as a limitation.
+- **Stage 4 complete ✅:** `gold = df_10_years.copy()` has shape **(2513, 5)**. Columns: Close, High, Low, Open, Volume, plus the Date index, from 2016-10-21 to 2026-10-20.
+- **Instrument verified ✅** (Yahoo quote page, 21 Oct 2026): "Gold Dec 26 (GC=F)", COMEX, delayed quote, USD, settlement date 2026-12-29. Yahoo labels GC=F with the currently active contract (December 2026), which explains the filename. It is a **futures price**, not a spot or retail gold price. 🔶 That the history is a continuous series rolled over successive contracts, and that prices are in USD per troy ounce, come from general knowledge and were not shown on the page.
+- **Stage 5 (requirements check):**
+  - Ten-year window ✅ (relative to the 21 Oct 2026 download).
+  - 2,513 observations ✅.
+  - Seven columns ⚠️: 6 including Date; Adj Close is not provided and would equal Close for futures.
+  - Variable types: datetime + continuous + discrete; no categorical.
+  - Source ⚠️: GC=F instead of CSV, not approved.
+- **Stage 6 in progress:**
+  - `Log_Return` = ln(Close_t / Close_{t−1}) added ✅ (first row NaN, as expected).
+  - `Daily_Range` = (High − Low) / Close added ✅. The first row is 0 (High = Low).
+  - 🔶 A quick check on the CSV, done by Claude outside the notebook, suggests Daily_Range is also affected by the pre-2020 recording problem: 76 zero-range days, all in 2016–2020; median range about 0.5–0.7% in 2017–2019 vs about 1.1–1.6% from 2020. **Not yet verified in the student's notebook.**
+- **Next planned step (start of next session):** run the cell `range_by_year` (zero-range days and median range per year). Then decide the clustering features: (a) use only Close-based features (Log_Return + rolling volatility), or (b) shorten the period to the consistent years (from about 2020). After that, add the rolling-volatility feature.
+
+## End of session 1 summary (21 Oct 2026)
+- Done: Stages 1–5 (loading, checks, cleaning, ten-year filter giving 2,513 rows, requirements check) and part of Stage 6.
+- Open: lecturer approval for GC=F, the seven-column interpretation, and the Daily_Range reliability decision.
+- Remaining stages: 6 (finish), 7 EDA, 8 cluster features, 9–12 clustering, 13–16 time series/ARIMA, 17 interpretation, 18 introduction/poster/references/presentation.
 
 ---
 
