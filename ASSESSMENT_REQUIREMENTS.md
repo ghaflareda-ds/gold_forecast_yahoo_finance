@@ -50,6 +50,8 @@ The original assessment brief specifies the Yahoo Finance page for ticker **`CSV
 - Use the algorithms, terminology, formulas, libraries and techniques taught in the course wherever appropriate.
 - Inspect course files before recommending methods. Never invent course content, page numbers or references.
 - Methods not covered by the course must be labelled as extensions and justified.
+- **Before suggesting any method or statistic, check that it appears in the course materials.** If it does not, either replace it with the course's own method or mark it clearly as **(extension, not from the course)** with the reason, and let the student decide.
+  - Example: skewness/kurtosis are not taught, so the Q-Q plot from Tutorial 6(a) is used instead.
 
 ## 4. Notebook documentation rule
 **Before** every meaningful code cell, add a Markdown cell explaining:

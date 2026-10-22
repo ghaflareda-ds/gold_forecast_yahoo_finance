@@ -32,6 +32,30 @@ Legend: ✅ verified from actual files or outputs · 🔶 proposed or not yet ve
   - 🔶 A quick check on the CSV, done by Claude outside the notebook, suggests Daily_Range is also affected by the pre-2020 recording problem: 76 zero-range days, all in 2016–2020; median range about 0.5–0.7% in 2017–2019 vs about 1.1–1.6% from 2020. **Not yet verified in the student's notebook.**
 - **Next planned step (start of next session):** run the cell `range_by_year` (zero-range days and median range per year). Then decide the clustering features: (a) use only Close-based features (Log_Return + rolling volatility), or (b) shorten the period to the consistent years (from about 2020). After that, add the rolling-volatility feature.
 
+## Session 2 (22 Oct 2026)
+- **Daily_Range check ✅** (student's notebook): zero-range days 2016 2, 2017 11, 2018 35, 2019 28, 2020 2, 2021–2026 0. Median range 2017–2019 0.50–0.68%; 2020–2026 1.13–2.29%. High/Low have the same pre-2020 recording problem as Volume.
+- **Decision ✅:** cluster only on **Close-based** features (Log_Return, Volatility_20d, Return_20d) over the full ten years. Daily_Range and Volume are kept in the table but excluded from clustering. Reasons: Close is consistent across the period, the time-series part also uses Close, and shortening to 2021+ would lose about 40% of the data.
+- **Features added ✅:**
+  - `Volatility_20d` = rolling 20-day std of Log_Return; first value 2016-11-21.
+  - `Return_20d` = ln(Close_t / Close_{t−20}); 2016-11-21 = −0.0455.
+- **Stage 6 complete ✅:** `gold.shape` = **(2513, 9)**, i.e. 5 original + 4 derived columns, plus the Date index. Derived-feature summary:
+  - Log_Return: mean 0.00047, std 0.0107, min −0.1141, max 0.0589.
+  - Daily_Range: mean 0.0135, min 0, max 0.1643.
+  - Volatility_20d: 0.0032–0.0356, median 0.0086.
+  - Return_20d: −0.1713 to 0.1997, std 0.0432.
+  - Different scales → scaling is needed before clustering.
+- EDA charts already made by the student: price + volatility, then price + volatility + Return_20d.
+- 🔶 To check in EDA: the −11.4% single-day return and the 16.4% daily range (real event or data artefact?).
+- **Correction (course-first rule):** skewness and kurtosis were suggested but are **not taught in the course**, so they were removed. They are replaced by the course method: a histogram plus a **Q-Q plot** (`sm.qqplot(returns, line='s')`, as in Tutorial 6(a)) to check normality and heavy tails.
+- **Stage 7 EDA ✅** (student's notebook):
+  - Price and volatility charts. Volatility comes in bursts: calm 2017–2019, spikes in early 2020 (~2.9%) and early 2026 (~3.5%).
+  - Histogram + Q-Q plot (Tutorial 6(a)): the middle follows the line, both tails depart, so the returns are heavy-tailed. The left tail is the most extreme.
+  - Top 10 absolute daily moves are all in 2020–2026. The largest is **30 Jan 2026: −11.4%**, with range 16.4% and volume 508,003 (looks like a real sell-off; cause not researched). It was followed by +5.9% on 3 Feb 2026. The March 2020 big moves have tiny volume but real Close moves, which supports using Close-based features.
+  - Correlation of the clustering features (Pearson, Lecture 8 p. 11): Log_Return–Volatility_20d −0.01, Log_Return–Return_20d 0.20, Volatility_20d–Return_20d 0.01, so they carry different information. A heatmap was added (seaborn; a visualisation not taken from the course).
+  - Seasonality will be tested formally in Stage 14 with the course methods (`seasonal_decompose`, ACF at seasonal lags).
+- **Incident:** cells were deleted by accident and restored from the Jupyter checkpoint (20:10). Advice: commit after each stage.
+- **Next planned step:** Stage 8: prepare the clustering features (drop the 20 warm-up rows, then StandardScaler as in Tutorial 3 Solution).
+
 ## End of session 1 summary (21 Oct 2026)
 - Done: Stages 1–5 (loading, checks, cleaning, ten-year filter giving 2,513 rows, requirements check) and part of Stage 6.
 - Open: lecturer approval for GC=F, the seven-column interpretation, and the Daily_Range reliability decision.
